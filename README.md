@@ -1,0 +1,2 @@
+# IBM-University-Engagement-Project-Submission-Smart-Study-Generator-
+The Smart Study Generator Agent is an AI-powered assistant that creates personalized study plans based on learning goals, study time, subject difficulty, and exam schedules. It recommends resources, tracks progress, adjusts plans, sends reminders, and helps students study efficiently to improve productivity and academic performance.
