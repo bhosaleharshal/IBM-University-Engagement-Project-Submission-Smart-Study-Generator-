@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StudyGenius AI — Smart Study Generator</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:        #ffffff;
+      --surface:   #f7f8fa;
+      --border:    #e5e7eb;
+      --text:      #1f2328;
+      --muted:     #57606a;
+      --accent:    #3b82d4;
+      --accent-dk: #2563aa;
+      --purple:    #7c5cd8;
+      --green:     #22c55e;
+      --radius:    10px;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+      font-size: 15px; line-height: 1.65;
+      color: var(--text); background: var(--bg);
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    img { max-width: 100%; display: block; }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 60px;
+      background: var(--bg); border-bottom: 1px solid var(--border);
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 1.15rem; font-weight: 700; color: var(--text);
+    }
+    .nav-brand .logo-icon {
+      width: 34px; height: 34px; background: var(--accent);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    }
+    .nav-brand .logo-icon svg { width: 20px; height: 20px; fill: #fff; }
+    .nav-links { display: flex; gap: 24px; list-style: none; }
+    .nav-links a { color: var(--muted); font-size: .92rem; font-weight: 500; }
+    .nav-links a:hover { color: var(--accent); text-decoration: none; }
+    .nav-cta {
+      background: var(--accent); color: #fff !important;
+      padding: 7px 18px; border-radius: 6px;
+      font-size: .88rem !important; font-weight: 600 !important;
+    }
+    .nav-cta:hover { background: var(--accent-dk); text-decoration: none !important; }
+
+    /* ── Hero ── */
+    .hero {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 40px; max-width: 1100px; margin: 0 auto;
+      padding: 72px 32px 56px;
+    }
+    .hero-text { flex: 1; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #eff6ff; color: var(--accent);
+      border: 1px solid #bfdbfe; padding: 4px 12px; border-radius: 20px;
+      font-size: .8rem; font-weight: 600; letter-spacing: .3px; margin-bottom: 18px;
+    }
+    .hero-badge span { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; }
+    .hero h1 {
+      font-size: 2.6rem; font-weight: 800;
+      line-height: 1.2; color: var(--text); margin-bottom: 18px;
+    }
+    .hero h1 em { font-style: normal; color: var(--accent); }
+    .hero p { font-size: 1.05rem; color: var(--muted); max-width: 480px; margin-bottom: 32px; }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--accent); color: #fff;
+      padding: 11px 26px; border-radius: 7px;
+      font-weight: 600; font-size: .95rem; border: none; cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--accent-dk); text-decoration: none; }
+    .btn-outline {
+      background: transparent; color: var(--accent);
+      padding: 11px 26px; border-radius: 7px;
+      border: 1.5px solid var(--accent);
+      font-weight: 600; font-size: .95rem; cursor: pointer;
+    }
+    .btn-outline:hover { background: #eff6ff; text-decoration: none; }
+    .hero-visual { flex: 1; max-width: 440px; }
+    .hero-img-wrap {
+      position: relative; border-radius: 16px; overflow: hidden;
+      border: 2px solid var(--border);
+    }
+    .hero-img-wrap img { width: 100%; height: 280px; object-fit: cover; }
+    .hero-img-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(transparent, rgba(30,36,48,.82));
+      padding: 18px 20px;
+    }
+    .stat-pills { display: flex; gap: 10px; flex-wrap: wrap; }
+    .stat-pill {
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+      border-radius: 20px; padding: 5px 14px;
+      font-size: .8rem; font-weight: 700; color: #fff;
+    }
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+    .stat-item {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 14px; text-align: center;
+    }
+    .stat-num { font-size: 1.7rem; font-weight: 800; color: var(--accent); }
+    .stat-label { font-size: .75rem; color: var(--muted); margin-top: 2px; }
+    .progress-demo { margin-top: 12px; padding: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+    .progress-label { display: flex; justify-content: space-between; font-size: .8rem; color: var(--muted); margin-bottom: 5px; }
+    .progress-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 4px; background: var(--accent); }
+
+    /* ── Section wrapper ── */
+    section { padding: 64px 32px; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-tag { font-size: .78rem; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+    .section-title { font-size: 1.9rem; font-weight: 800; margin-bottom: 10px; }
+    .section-sub { color: var(--muted); max-width: 540px; margin-bottom: 40px; font-size: .97rem; }
+
+    /* ── Image banner strip ── */
+    .img-strip { display: flex; gap: 12px; overflow: hidden; margin: 0 0 48px; border-radius: var(--radius); }
+    .img-strip img { flex: 1; height: 160px; object-fit: cover; border-radius: var(--radius); min-width: 0; }
+
+    /* ── Features ── */
+    #features { background: var(--surface); }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+    .feature-card {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .feature-card-img { width: 100%; height: 130px; object-fit: cover; }
+    .feature-card-body { padding: 18px 20px; }
+    .feature-icon {
+      width: 40px; height: 40px; border-radius: 9px;
+      display: flex; align-items: center; justify-content: center; margin-bottom: 11px;
+    }
+    .feature-icon svg { width: 22px; height: 22px; }
+    .feature-card h3 { font-size: .97rem; font-weight: 700; margin-bottom: 5px; }
+    .feature-card p { color: var(--muted); font-size: .86rem; }
+
+    /* ── How it works ── */
+    .how-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+    .how-img-col img { width: 100%; border-radius: 14px; border: 2px solid var(--border); object-fit: cover; height: 380px; }
+    .steps-list { display: flex; flex-direction: column; gap: 20px; }
+    .step-row { display: flex; gap: 16px; align-items: flex-start; }
+    .step-num {
+      width: 38px; height: 38px; flex-shrink: 0;
+      background: var(--accent); color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: .95rem;
+    }
+    .step-row h4 { font-size: .96rem; font-weight: 700; margin-bottom: 4px; }
+    .step-row p { font-size: .84rem; color: var(--muted); }
+
+    /* ── Resources ── */
+    #resources { background: var(--surface); }
+    .resources-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+    .resource-card {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .resource-card-img { width: 100%; height: 140px; object-fit: cover; }
+    .resource-card-body { padding: 16px 18px; }
+    .resource-card .tag {
+      display: inline-block; font-size: .72rem; font-weight: 700;
+      padding: 2px 10px; border-radius: 12px; margin-bottom: 8px;
+    }
+    .tag-video   { background: #fef3c7; color: #92400e; }
+    .tag-article { background: #dbeafe; color: #1e40af; }
+    .tag-quiz    { background: #f3e8ff; color: #6b21a8; }
+    .tag-plan    { background: #dcfce7; color: #166534; }
+    .resource-card h4 { font-size: .93rem; font-weight: 700; margin-bottom: 4px; }
+    .resource-card p  { font-size: .82rem; color: var(--muted); }
+    .resource-meta { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: .77rem; color: var(--muted); }
+
+    /* ── Subjects showcase ── */
+    .subjects-section { background: var(--bg); }
+    .subjects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
+    .subject-card {
+      border-radius: var(--radius); overflow: hidden;
+      border: 1px solid var(--border); text-align: center;
+    }
+    .subject-card img { width: 100%; height: 110px; object-fit: cover; }
+    .subject-card-label { padding: 10px 8px; font-size: .85rem; font-weight: 700; }
+
+    /* ── Progress tracker ── */
+    .tracker-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .tracker-panel {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 26px;
+    }
+    .tracker-panel h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 18px; }
+    .subject-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .subject-name { font-size: .88rem; font-weight: 600; width: 110px; flex-shrink: 0; }
+    .subj-bar { flex: 1; height: 10px; background: var(--border); border-radius: 5px; overflow: hidden; }
+    .subj-fill { height: 100%; border-radius: 5px; }
+    .subj-pct { font-size: .78rem; color: var(--muted); width: 34px; text-align: right; flex-shrink: 0; }
+    .streak-box {
+      text-align: center; padding: 20px;
+      border: 1px solid var(--border); border-radius: 8px; background: var(--bg);
+    }
+    .streak-num { font-size: 2.4rem; font-weight: 800; color: var(--accent); }
+    .streak-label { font-size: .82rem; color: var(--muted); }
+    .activity-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 12px; }
+    .activity-day { height: 14px; border-radius: 3px; background: var(--border); }
+    .activity-day.done { background: var(--accent); }
+
+    /* ── Students photo wall ── */
+    .photo-wall { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 40px; }
+    .photo-wall img { width: 100%; height: 160px; object-fit: cover; border-radius: var(--radius); }
+
+    /* ── Testimonials ── */
+    #testimonials { background: var(--surface); }
+    .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+    .testi-card {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .testi-card-img { width: 100%; height: 120px; object-fit: cover; }
+    .testi-card-body { padding: 20px; }
+    .testi-stars { color: #f59e0b; font-size: 1rem; letter-spacing: 2px; margin-bottom: 10px; }
+    .testi-card blockquote { font-size: .88rem; color: var(--muted); font-style: italic; margin-bottom: 16px; }
+    .testi-author { display: flex; align-items: center; gap: 10px; }
+    .avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: .85rem; color: #fff;
+    }
+    .testi-name { font-size: .88rem; font-weight: 600; }
+    .testi-role { font-size: .78rem; color: var(--muted); }
+
+    /* ── IBM AI section ── */
+    .ai-section { background: var(--bg); }
+    .ai-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+    .ai-img-col img { width: 100%; border-radius: 14px; border: 2px solid var(--border); height: 320px; object-fit: cover; }
+    .ai-points { display: flex; flex-direction: column; gap: 16px; margin-top: 22px; }
+    .ai-point { display: flex; gap: 12px; align-items: flex-start; }
+    .ai-dot { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+    .ai-point p { font-size: .9rem; color: var(--muted); }
+    .ai-point strong { color: var(--text); }
+
+    /* ── CTA Banner ── */
+    .cta-banner {
+      background: var(--accent); color: #fff;
+      border-radius: var(--radius); padding: 40px 36px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 24px; flex-wrap: wrap;
+    }
+    .cta-banner h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 6px; }
+    .cta-banner p  { font-size: .93rem; opacity: .88; }
+    .btn-white {
+      background: #fff; color: var(--accent);
+      padding: 11px 28px; border-radius: 7px;
+      font-weight: 700; font-size: .95rem; border: none; cursor: pointer; white-space: nowrap;
+    }
+    .btn-white:hover { background: #eff6ff; text-decoration: none; }
+
+    /* ── FAQ ── */
+    .faq-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+    .faq-img img { width: 100%; border-radius: 14px; border: 2px solid var(--border); height: 380px; object-fit: cover; }
+    .faq-list { max-width: 100%; }
+    .faq-item { border-bottom: 1px solid var(--border); }
+    .faq-q {
+      width: 100%; text-align: left; background: none; border: none;
+      cursor: pointer; padding: 16px 0;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: .97rem; font-weight: 600; color: var(--text);
+    }
+    .faq-q .chevron { font-size: .8rem; color: var(--muted); transition: transform .2s; }
+    .faq-q.open .chevron { transform: rotate(180deg); }
+    .faq-a { display: none; font-size: .9rem; color: var(--muted); padding-bottom: 16px; }
+    .faq-a.open { display: block; }
+
+    /* ── Footer ── */
+    footer { background: var(--text); color: #c9d1d9; padding: 48px 32px 28px; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; }
+    .footer-top-img { width: 100%; height: 200px; object-fit: cover; border-radius: var(--radius); margin-bottom: 36px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 32px; margin-bottom: 36px; }
+    .footer-brand { font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 10px; }
+    .footer-tagline { font-size: .85rem; line-height: 1.6; }
+    .footer-col h4 { font-size: .85rem; font-weight: 700; color: #fff; margin-bottom: 12px; letter-spacing: .3px; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+    .footer-col ul li a { font-size: .83rem; color: #8b949e; }
+    .footer-col ul li a:hover { color: #fff; text-decoration: none; }
+    .footer-bottom {
+      border-top: 1px solid #30363d; padding-top: 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: .8rem; color: #8b949e; flex-wrap: wrap; gap: 8px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .how-layout, .ai-layout, .faq-layout { grid-template-columns: 1fr; }
+      .how-img-col, .ai-img-col, .faq-img { order: -1; }
+      .how-img-col img, .ai-img-col img, .faq-img img { height: 220px; }
+      .tracker-wrap { grid-template-columns: 1fr; }
+      .photo-wall { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 860px) {
+      .hero { flex-direction: column; padding: 48px 20px 40px; }
+      .hero-visual { max-width: 100%; width: 100%; }
+      nav { padding: 0 16px; }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 560px) {
+      .hero h1 { font-size: 1.9rem; }
+      section { padding: 44px 16px; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .cta-banner { flex-direction: column; }
+      .img-strip { flex-direction: column; }
+      .img-strip img { height: 120px; width: 100%; }
+      .subjects-grid { grid-template-columns: repeat(2, 1fr); }
+      .photo-wall { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ NAV ═══════════════ -->
+<nav>
+  <div class="nav-brand">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2a5 5 0 1 1 0 10A5 5 0 0 1 12 2zm0 12c5.33 0 8 2.67 8 4v2H4v-2c0-1.33 2.67-4 8-4z"/>
+      </svg>
+    </div>
+    StudyGenius <span style="color:var(--accent);margin-left:3px;">AI</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how-it-works">How It Works</a></li>
+    <li><a href="#resources">Resources</a></li>
+    <li><a href="#subjects">Subjects</a></li>
+    <li><a href="#progress">Progress</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="#chat" class="nav-cta">Ask AI Agent</a></li>
+  </ul>
+</nav>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<div class="hero">
+  <div class="hero-text">
+    <div class="hero-badge"><span></span> Powered by IBM watsonx Orchestrate</div>
+    <h1>Your <em>AI-Powered</em><br>Smart Study<br>Generator</h1>
+    <p>Collect resources, build personalized study materials, get adaptive study plans, and track your progress — all in one intelligent platform.</p>
+    <div class="hero-actions">
+      <a href="#chat" class="btn-primary">Start Studying with AI</a>
+      <a href="#how-it-works" class="btn-outline">See How It Works</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-img-wrap">
+      <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80" alt="Students studying together" />
+      <div class="hero-img-overlay">
+        <div class="stat-pills">
+          <span class="stat-pill">94% Pass Rate</span>
+          <span class="stat-pill">3.2× Faster</span>
+          <span class="stat-pill">50K+ Students</span>
+        </div>
+      </div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-item"><div class="stat-num">94%</div><div class="stat-label">Exam Pass Rate</div></div>
+      <div class="stat-item"><div class="stat-num">3.2×</div><div class="stat-label">Faster Learning</div></div>
+      <div class="stat-item"><div class="stat-num">50K+</div><div class="stat-label">Active Students</div></div>
+      <div class="stat-item"><div class="stat-num">200+</div><div class="stat-label">Study Topics</div></div>
+    </div>
+    <div class="progress-demo">
+      <div class="progress-label"><span>Your Study Progress</span><span>78%</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="hero-progress" style="width:0%;"></div></div>
+      <div class="progress-label" style="margin-top:9px;"><span>Exam Readiness</span><span>65%</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="hero-readiness" style="width:0%; background:var(--purple);"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ IMAGE STRIP ═══════════════ -->
+<div style="max-width:1100px;margin:0 auto;padding:0 32px 16px;">
+  <div class="img-strip">
+    <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&q=75" alt="Student with laptop" />
+    <img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?w=400&q=75" alt="Library books" />
+    <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&q=75" alt="Classroom" />
+    <img src="https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?w=400&q=75" alt="AI brain concept" />
+    <img src="https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=400&q=75" alt="Notebook and pen" />
+  </div>
+</div>
+
+<!-- ═══════════════ FEATURES ═══════════════ -->
+<section id="features">
+  <div class="section-inner">
+    <div class="section-tag">What We Offer</div>
+    <h2 class="section-title">Everything You Need to Excel</h2>
+    <p class="section-sub">Our AI agent handles the heavy lifting so you can focus entirely on learning and retaining knowledge.</p>
+    <div class="features-grid">
+
+      <div class="feature-card">
+        <img class="feature-card-img" src="https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=600&q=75" alt="AI collecting resources" />
+        <div class="feature-card-body">
+          <div class="feature-icon" style="background:#eff6ff;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </div>
+          <h3>AI Resource Collector</h3>
+          <p>Automatically gathers and curates the best videos, articles, and notes tailored to your syllabus.</p>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <img class="feature-card-img" src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&q=75" alt="Personalized study materials" />
+        <div class="feature-card-body">
+          <div class="feature-icon" style="background:#f3e8ff;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
+          <h3>Personalized Study Materials</h3>
+          <p>Generates custom flashcards, summaries, and practice questions based on your learning style.</p>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <img class="feature-card-img" src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=600&q=75" alt="Adaptive study plan calendar" />
+        <div class="feature-card-body">
+          <div class="feature-icon" style="background:#dcfce7;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <h3>Adaptive Study Plans</h3>
+          <p>Creates smart, time-aware schedules that evolve with your progress and exam deadlines.</p>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <img class="feature-card-img" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=75" alt="Progress tracking dashboard" />
+        <div class="feature-card-body">
+          <div class="feature-icon" style="background:#fef3c7;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          </div>
+          <h3>Progress Tracking</h3>
+          <p>Real-time dashboards show strengths, weaknesses, daily streaks, and exam readiness scores.</p>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <img class="feature-card-img" src="https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?w=600&q=75" alt="Timed practice exam" />
+        <div class="feature-card-body">
+          <div class="feature-icon" style="background:#ffe4e6;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <h3>Timed Practice Exams</h3>
+          <p>Simulates real exam conditions with topic-wise timed quizzes and detailed performance reports.</p>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <img class="feature-card-img" src="https://images.unsplash.com/photo-1587560699334-cc4ff634909a?w=600&q=75" alt="AI tutor chat" />
+        <div class="feature-card-body">
+          <div class="feature-icon" style="background:#e0f2fe;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <h3>24/7 AI Tutor Chat</h3>
+          <p>Ask questions anytime. The embedded IBM watsonx AI agent explains concepts instantly.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ HOW IT WORKS ═══════════════ -->
+<section id="how-it-works">
+  <div class="section-inner">
+    <div class="section-tag">Process</div>
+    <h2 class="section-title">How StudyGenius AI Works</h2>
+    <p class="section-sub">Get set up in minutes and let the AI agent handle everything else.</p>
+    <div class="how-layout">
+      <div class="how-img-col">
+        <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&q=80" alt="Students working with AI study tools" />
+      </div>
+      <div class="steps-list">
+        <div class="step-row">
+          <div class="step-num">1</div>
+          <div>
+            <h4>Tell the AI Your Goals</h4>
+            <p>Share your subject, exam date, and current knowledge level with the AI agent.</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">2</div>
+          <div>
+            <h4>AI Builds Your Plan</h4>
+            <p>The agent collects resources and creates a personalized study schedule automatically.</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">3</div>
+          <div>
+            <h4>Study with Smart Materials</h4>
+            <p>Access flashcards, summaries, videos, and practice questions — all in one place.</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">4</div>
+          <div>
+            <h4>Track &amp; Adapt</h4>
+            <p>Monitor progress daily. The AI adapts your plan based on quiz results and time left.</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">5</div>
+          <div>
+            <h4>Ace Your Exam</h4>
+            <p>Walk in confident with exam simulations and AI-generated last-minute revision notes.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ RESOURCES ═══════════════ -->
+<section id="resources">
+  <div class="section-inner">
+    <div class="section-tag">Learning Library</div>
+    <h2 class="section-title">Curated Study Resources</h2>
+    <p class="section-sub">The AI agent continuously adds high-quality materials matched to your course and learning pace.</p>
+    <div class="resources-grid">
+
+      <div class="resource-card">
+        <img class="resource-card-img" src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&q=75" alt="Linear Algebra" />
+        <div class="resource-card-body">
+          <span class="tag tag-video">Video</span>
+          <h4>Linear Algebra Masterclass</h4>
+          <p>Comprehensive 8-module video series covering vectors, matrices, and eigenvectors.</p>
+          <div class="resource-meta"><span>⏱ 4h 20m</span><span>·</span><span>MIT OpenCourseWare</span></div>
+        </div>
+      </div>
+
+      <div class="resource-card">
+        <img class="resource-card-img" src="https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=75" alt="Machine Learning" />
+        <div class="resource-card-body">
+          <span class="tag tag-article">Article</span>
+          <h4>Machine Learning Fundamentals</h4>
+          <p>In-depth article with visual explanations of supervised and unsupervised learning.</p>
+          <div class="resource-meta"><span>⏱ 25 min read</span><span>·</span><span>IBM Developer</span></div>
+        </div>
+      </div>
+
+      <div class="resource-card">
+        <img class="resource-card-img" src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&q=75" alt="Data Structures coding" />
+        <div class="resource-card-body">
+          <span class="tag tag-quiz">Quiz</span>
+          <h4>Data Structures Practice Set</h4>
+          <p>150 topic-wise questions on arrays, linked lists, trees, and graphs with explanations.</p>
+          <div class="resource-meta"><span>⏱ 150 questions</span><span>·</span><span>Adaptive Difficulty</span></div>
+        </div>
+      </div>
+
+      <div class="resource-card">
+        <img class="resource-card-img" src="https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=600&q=75" alt="Python programming" />
+        <div class="resource-card-body">
+          <span class="tag tag-plan">Study Plan</span>
+          <h4>30-Day Python Bootcamp Plan</h4>
+          <p>Structured daily plan for Python beginners with checkpoints and mini-projects.</p>
+          <div class="resource-meta"><span>⏱ 30 days</span><span>·</span><span>Beginner-Friendly</span></div>
+        </div>
+      </div>
+
+      <div class="resource-card">
+        <img class="resource-card-img" src="https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=600&q=75" alt="Chemistry lab" />
+        <div class="resource-card-body">
+          <span class="tag tag-video">Video</span>
+          <h4>Organic Chemistry Reactions</h4>
+          <p>Visual breakdown of 40+ reaction mechanisms with memory techniques.</p>
+          <div class="resource-meta"><span>⏱ 3h 10m</span><span>·</span><span>Khan Academy</span></div>
+        </div>
+      </div>
+
+      <div class="resource-card">
+        <img class="resource-card-img" src="https://images.unsplash.com/photo-1461360228754-6e81c478b882?w=600&q=75" alt="History books" />
+        <div class="resource-card-body">
+          <span class="tag tag-article">Article</span>
+          <h4>History of World Wars — Summary</h4>
+          <p>Concise AI-generated notes with timelines, key dates, and exam-ready flashcards.</p>
+          <div class="resource-meta"><span>⏱ 18 min read</span><span>·</span><span>AI Generated</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SUBJECTS SHOWCASE ═══════════════ -->
+<section id="subjects" class="subjects-section">
+  <div class="section-inner">
+    <div class="section-tag">Subjects</div>
+    <h2 class="section-title">Study Any Subject</h2>
+    <p class="section-sub">From STEM to humanities — the AI agent knows every field. Pick your subject and start instantly.</p>
+    <div class="subjects-grid">
+      <div class="subject-card">
+        <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&q=70" alt="Mathematics" />
+        <div class="subject-card-label">Mathematics</div>
+      </div>
+      <div class="subject-card">
+        <img src="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=400&q=70" alt="Physics" />
+        <div class="subject-card-label">Physics</div>
+      </div>
+      <div class="subject-card">
+        <img src="https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=400&q=70" alt="Chemistry" />
+        <div class="subject-card-label">Chemistry</div>
+      </div>
+      <div class="subject-card">
+        <img src="https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=400&q=70" alt="Biology" />
+        <div class="subject-card-label">Biology</div>
+      </div>
+      <div class="subject-card">
+        <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&q=70" alt="Computer Science" />
+        <div class="subject-card-label">Computer Science</div>
+      </div>
+      <div class="subject-card">
+        <img src="https://images.unsplash.com/photo-1461360228754-6e81c478b882?w=400&q=70" alt="History" />
+        <div class="subject-card-label">History</div>
+      </div>
+      <div class="subject-card">
+        <img src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400&q=70" alt="Literature" />
+        <div class="subject-card-label">Literature</div>
+      </div>
+      <div class="subject-card">
+        <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=70" alt="AI & Data Science" />
+        <div class="subject-card-label">AI &amp; Data Science</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ PROGRESS TRACKER ═══════════════ -->
+<section id="progress" style="background:var(--surface);">
+  <div class="section-inner">
+    <div class="section-tag">Dashboard</div>
+    <h2 class="section-title">Track Your Progress</h2>
+    <p class="section-sub">Visual dashboards keep you motivated and on track every single day.</p>
+    <div class="tracker-wrap">
+      <div class="tracker-panel">
+        <h3>Subject Completion</h3>
+        <div class="subject-row">
+          <div class="subject-name">Mathematics</div>
+          <div class="subj-bar"><div class="subj-fill" data-pct="82" style="width:0%;background:var(--accent);"></div></div>
+          <div class="subj-pct">82%</div>
+        </div>
+        <div class="subject-row">
+          <div class="subject-name">Physics</div>
+          <div class="subj-bar"><div class="subj-fill" data-pct="67" style="width:0%;background:var(--purple);"></div></div>
+          <div class="subj-pct">67%</div>
+        </div>
+        <div class="subject-row">
+          <div class="subject-name">Chemistry</div>
+          <div class="subj-bar"><div class="subj-fill" data-pct="55" style="width:0%;background:#f59e0b;"></div></div>
+          <div class="subj-pct">55%</div>
+        </div>
+        <div class="subject-row">
+          <div class="subject-name">Biology</div>
+          <div class="subj-bar"><div class="subj-fill" data-pct="90" style="width:0%;background:var(--green);"></div></div>
+          <div class="subj-pct">90%</div>
+        </div>
+        <div class="subject-row">
+          <div class="subject-name">Computer Sci.</div>
+          <div class="subj-bar"><div class="subj-fill" data-pct="73" style="width:0%;background:#e11d48;"></div></div>
+          <div class="subj-pct">73%</div>
+        </div>
+      </div>
+      <div class="tracker-panel">
+        <h3>Study Activity</h3>
+        <div class="streak-box">
+          <div class="streak-num" id="streak-count">0</div>
+          <div class="streak-label">Day Streak 🔥</div>
+        </div>
+        <div style="margin-top:18px;">
+          <div style="font-size:.82rem;color:var(--muted);margin-bottom:8px;">Last 4 weeks activity</div>
+          <div class="activity-grid" id="activity-grid"></div>
+        </div>
+        <div style="margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div style="text-align:center;padding:14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;">
+            <div style="font-size:1.5rem;font-weight:800;color:var(--accent);">148h</div>
+            <div style="font-size:.78rem;color:var(--muted);">Total Study Time</div>
+          </div>
+          <div style="text-align:center;padding:14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;">
+            <div style="font-size:1.5rem;font-weight:800;color:var(--purple);">342</div>
+            <div style="font-size:.78rem;color:var(--muted);">Questions Solved</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ AI SECTION ═══════════════ -->
+<section class="ai-section">
+  <div class="section-inner">
+    <div class="section-tag">Powered by IBM watsonx</div>
+    <h2 class="section-title">Enterprise AI Backing Your Studies</h2>
+    <p class="section-sub">Built on IBM watsonx Orchestrate — the same enterprise-grade AI trusted by thousands of organizations worldwide.</p>
+    <div class="ai-layout">
+      <div class="ai-img-col">
+        <img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&q=80" alt="AI technology neural network" />
+      </div>
+      <div>
+        <p style="color:var(--muted);font-size:.97rem;line-height:1.7;">The StudyGenius AI agent uses IBM's cutting-edge large language models to understand your curriculum, adapt to your pace, and generate exactly the study content you need — instantly and accurately.</p>
+        <div class="ai-points">
+          <div class="ai-point"><div class="ai-dot"></div><p><strong>Natural language understanding</strong> — Ask questions just like you'd ask a teacher.</p></div>
+          <div class="ai-point"><div class="ai-dot"></div><p><strong>Curriculum-aware generation</strong> — Materials aligned to your exact syllabus and exam board.</p></div>
+          <div class="ai-point"><div class="ai-dot"></div><p><strong>Adaptive intelligence</strong> — The agent learns your weaknesses and doubles down on them.</p></div>
+          <div class="ai-point"><div class="ai-dot"></div><p><strong>Enterprise security</strong> — Your data stays private on IBM Cloud infrastructure.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ STUDENT PHOTO WALL ═══════════════ -->
+<section style="background:var(--surface);padding:48px 32px;">
+  <div class="section-inner">
+    <div class="section-tag">Community</div>
+    <h2 class="section-title">Students Winning with StudyGenius</h2>
+    <p class="section-sub">Over 50,000 students worldwide study smarter every day with our AI-powered platform.</p>
+    <div class="photo-wall">
+      <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=500&q=75" alt="Student studying" />
+      <img src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=500&q=75" alt="University campus" />
+      <img src="https://images.unsplash.com/photo-1571260899304-425eee4c7efc?w=500&q=75" alt="Students group study" />
+      <img src="https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=500&q=75" alt="Student taking notes" />
+      <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=500&q=75" alt="Stack of books" />
+      <img src="https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=500&q=75" alt="Classroom learning" />
+      <img src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=500&q=75" alt="E-learning online" />
+      <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=500&q=75" alt="Student laptop study" />
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ TESTIMONIALS ═══════════════ -->
+<section id="testimonials">
+  <div class="section-inner">
+    <div class="section-tag">Students Love It</div>
+    <h2 class="section-title">Real Results from Real Students</h2>
+    <p class="section-sub">Thousands of students improved their grades using StudyGenius AI.</p>
+    <div class="testimonials-grid">
+
+      <div class="testi-card">
+        <img class="testi-card-img" src="https://images.unsplash.com/photo-1571260899304-425eee4c7efc?w=600&q=75" alt="Students celebrating" />
+        <div class="testi-card-body">
+          <div class="testi-stars">★★★★★</div>
+          <blockquote>"The AI agent created a 3-week study plan for my finals and I passed with distinction. It felt like having a personal tutor available 24/7."</blockquote>
+          <div class="testi-author">
+            <div class="avatar" style="background:var(--accent);">AK</div>
+            <div><div class="testi-name">Aisha Khan</div><div class="testi-role">Medical Student, Year 3</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card">
+        <img class="testi-card-img" src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&q=75" alt="Coding student" />
+        <div class="testi-card-body">
+          <div class="testi-stars">★★★★★</div>
+          <blockquote>"I was failing Data Structures. After two weeks with StudyGenius AI, I scored 88% on my midterm. The adaptive quizzes are brilliant."</blockquote>
+          <div class="testi-author">
+            <div class="avatar" style="background:var(--purple);">RC</div>
+            <div><div class="testi-name">Rohan Chaudhary</div><div class="testi-role">CS Undergraduate</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card">
+        <img class="testi-card-img" src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&q=75" alt="Student with books" />
+        <div class="testi-card-body">
+          <div class="testi-stars">★★★★★</div>
+          <blockquote>"The resource collection alone is worth it. Instead of searching YouTube for hours, the AI curates everything relevant to my syllabus instantly."</blockquote>
+          <div class="testi-author">
+            <div class="avatar" style="background:#16a34a;">LP</div>
+            <div><div class="testi-name">Lena Petrova</div><div class="testi-role">High School Senior</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ CTA ═══════════════ -->
+<section id="chat">
+  <div class="section-inner">
+    <div class="cta-banner">
+      <div>
+        <h2>Ready to Study Smarter?</h2>
+        <p>Chat with the AI agent below — tell it your subject, exam date, and goals. It'll build your plan in seconds.</p>
+      </div>
+      <a href="#" class="btn-white" id="open-chat-btn">Open AI Study Agent</a>
+    </div>
+    <div id="root" style="margin-top:32px; min-height:80px;"></div>
+  </div>
+</section>
+
+<!-- ═══════════════ FAQ ═══════════════ -->
+<section id="faq" style="background:var(--surface);">
+  <div class="section-inner">
+    <div class="section-tag">FAQ</div>
+    <h2 class="section-title">Frequently Asked Questions</h2>
+    <p class="section-sub">Have questions? Our AI can answer them too — just open the chat.</p>
+    <div class="faq-layout">
+      <div class="faq-img">
+        <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80" alt="Student in library thinking" />
+      </div>
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-q">What subjects does StudyGenius AI support? <span class="chevron">▼</span></button>
+          <div class="faq-a">StudyGenius AI supports all major school and university subjects including Mathematics, Sciences, Humanities, Computer Science, Languages, Law, Medicine, and more. The AI agent adapts to any curriculum or syllabus you provide.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">How does the AI personalize my study plan? <span class="chevron">▼</span></button>
+          <div class="faq-a">The AI agent collects your current knowledge level, exam date, daily availability, and learning preferences. It then generates a day-by-day plan, adjusting it dynamically based on your quiz performance and progress.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">Is the AI agent available 24/7? <span class="chevron">▼</span></button>
+          <div class="faq-a">Yes! The IBM watsonx-powered AI agent embedded in this page is available around the clock. Ask it anything — from concept explanations to generating new practice questions.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">Can the AI generate practice exams? <span class="chevron">▼</span></button>
+          <div class="faq-a">Absolutely. The AI agent can create topic-specific or full-syllabus mock exams with timed conditions, multiple choice, short answer, and essay-style questions — complete with answer keys and explanations.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">Is my data secure? <span class="chevron">▼</span></button>
+          <div class="faq-a">The AI agent is powered by IBM watsonx Orchestrate, which runs on IBM Cloud with enterprise-grade security and data privacy. Your study data is never shared with third parties.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer>
+  <div class="footer-inner">
+    <img class="footer-top-img" src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=1200&q=75" alt="Library study environment" />
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">StudyGenius AI</div>
+        <p class="footer-tagline">An AI-powered Smart Study Generator that helps students collect resources, build study plans, and ace their exams — powered by IBM watsonx Orchestrate.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#resources">Resources</a></li>
+          <li><a href="#progress">Dashboard</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Subjects</h4>
+        <ul>
+          <li><a href="#subjects">Mathematics</a></li>
+          <li><a href="#subjects">Sciences</a></li>
+          <li><a href="#subjects">Computer Science</a></li>
+          <li><a href="#subjects">Humanities</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#chat">AI Chat Support</a></li>
+          <li><a href="#chat">Contact Us</a></li>
+          <li><a href="#chat">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 StudyGenius AI. Powered by IBM watsonx Orchestrate.</span>
+      <span>Built for students who aim higher.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════ AI AGENT SCRIPT ═══════════════ -->
+<script>
+  window.wxOConfiguration = {
+    orchestrationID: "0bc90724e4344779bcba16b2a7844586_cf25a763-60cc-4b54-bf25-24e4f8886589",
+    hostURL: "https://au-syd.watson-orchestrate.cloud.ibm.com",
+    rootElementID: "root",
+    deploymentPlatform: "ibmcloud",
+    crn: "crn:v1:bluemix:public:watsonx-orchestrate:au-syd:a/0bc90724e4344779bcba16b2a7844586:cf25a763-60cc-4b54-bf25-24e4f8886589::",
+    chatOptions: {
+      agentId: "dffd0424-9b9d-4974-961d-f8787406aaaa"
+    }
+  };
+  setTimeout(function () {
+    const script = document.createElement('script');
+    script.src = `${window.wxOConfiguration.hostURL}/wxochat/wxoLoader.js?embed=true`;
+    script.addEventListener('load', function () {
+      wxoLoader.init();
+    });
+    document.head.appendChild(script);
+  }, 0);
+</script>
+
+<!-- ═══════════════ PAGE JAVASCRIPT ═══════════════ -->
+<script>
+  /* ── Animated progress bars on scroll ── */
+  const animateOnScroll = () => {
+    document.querySelectorAll('.subj-fill[data-pct]').forEach(el => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight - 60 && el.style.width === '0%') {
+        el.style.transition = 'width 1s ease';
+        el.style.width = el.dataset.pct + '%';
+      }
+    });
+    const heroProgress = document.getElementById('hero-progress');
+    const heroReadiness = document.getElementById('hero-readiness');
+    if (heroProgress && heroProgress.style.width === '0%') {
+      heroProgress.style.transition = 'width 1.2s ease .3s';
+      heroProgress.style.width = '78%';
+    }
+    if (heroReadiness && heroReadiness.style.width === '0%') {
+      heroReadiness.style.transition = 'width 1.2s ease .5s';
+      heroReadiness.style.width = '65%';
+    }
+  };
+  window.addEventListener('scroll', animateOnScroll);
+  window.addEventListener('load', animateOnScroll);
+
+  /* ── Streak counter animation ── */
+  const streakEl = document.getElementById('streak-count');
+  let streakDone = false;
+  const animateStreak = () => {
+    if (streakDone) return;
+    const rect = streakEl.getBoundingClientRect();
+    if (rect.top < window.innerHeight) {
+      streakDone = true;
+      let n = 0; const target = 21;
+      const interval = setInterval(() => {
+        n = Math.min(n + 1, target);
+        streakEl.textContent = n;
+        if (n === target) clearInterval(interval);
+      }, 60);
+    }
+  };
+  window.addEventListener('scroll', animateStreak);
+  window.addEventListener('load', animateStreak);
+
+  /* ── Activity grid ── */
+  const grid = document.getElementById('activity-grid');
+  [1,1,0,1,1,1,0, 1,0,1,1,0,1,1, 0,1,1,1,0,1,1, 1,1,1,0,1,1,1].forEach(active => {
+    const d = document.createElement('div');
+    d.className = 'activity-day' + (active ? ' done' : '');
+    grid.appendChild(d);
+  });
+
+  /* ── FAQ accordion ── */
+  document.querySelectorAll('.faq-q').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const answer = btn.nextElementSibling;
+      const isOpen = btn.classList.contains('open');
+      document.querySelectorAll('.faq-q').forEach(b => {
+        b.classList.remove('open');
+        b.nextElementSibling.classList.remove('open');
+      });
+      if (!isOpen) { btn.classList.add('open'); answer.classList.add('open'); }
+    });
+  });
+
+  /* ── Open AI chat button ── */
+  document.getElementById('open-chat-btn').addEventListener('click', e => {
+    e.preventDefault();
+    document.getElementById('root').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+</script>
+
+</body>
+</html>
